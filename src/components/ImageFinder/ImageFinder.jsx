@@ -1,6 +1,5 @@
 import { Searchbar } from 'components/SearchBar/SearchBar';
 import { Component } from 'react';
-// import axios from 'axios';
 import { ImageGallery } from 'components/ImageGallery/ImageGallery';
 import { Button } from 'components/Button/Button';
 import { Loader } from 'components/Loader/Loader';
@@ -16,34 +15,25 @@ export class ImageFinder extends Component {
     status: 'idle',
     modal: false,
     imageLink: null,
+    imageTags: null,
     totalHits: null,
   };
 
   componentDidUpdate(_, prevState) {
-    if (
-      prevState.search !== this.state.search &&
-      this.state.search.trim() !== ''
-    ) {
+    if (prevState.search !== this.state.search) {
       this.getResponse();
       return;
     }
     if (prevState.page !== this.state.page) {
       this.getResponse();
     }
-    if (
-      this.state.imageLink !== prevState.imageLink &&
-      this.state.imageLink !== null
-    ) {
-      this.showModal();
-    }
   }
 
   addNewSearchValue = value => {
-    if (value !== this.state.search) {
+    if (value.trim() !== this.state.search && value.trim() !== '') {
       this.setState({ search: value, images: [], page: 1 });
     }
     if (value.trim() === '') {
-      this.setState({ status: 'idle' });
       alert(`Search field must contain something to show results`);
     }
   };
@@ -51,31 +41,16 @@ export class ImageFinder extends Component {
   async getResponse() {
     try {
       this.setState({ status: 'pending' });
-      //   const response = await axios.get(
-      //     `https://pixabay.com/api/?key=32997992-21d577d14436d1c75bdc39ad8&q=${this.state.search.trim()}&page=${
-      //       this.state.page
-      //     }&per_page=12&orientation=horizontal`
-      //   );
-
-      //   const response = await axios.get(`https://pixabay.com/api`, {
-      //     params: {
-      //       key: '32997992-21d577d14436d1c75bdc39ad8',
-      //       q: this.state.search.trim(),
-      //       orientation: 'horizontal',           //в такому вигляді краще, але чогось гітхаб свариться
-      //       page: this.state.page,               //на якісь міксовані https запити
-      //       per_page: 12,
-      //     },
-      //   });
 
       const response = await searchImages(this.state.search, this.state.page);
-
       this.setState(prevState => {
         const newImages = response.data.hits.map(
-          ({ id, previewURL, webformatURL }) => {
+          ({ id, previewURL, webformatURL, tags }) => {
             return {
               id,
               previewURL,
               webformatURL,
+              tags,
             };
           }
         );
@@ -87,8 +62,11 @@ export class ImageFinder extends Component {
         };
       });
     } catch (error) {
-      this.setState({ status: 'rejected' });
-      console.log(error);
+      this.setState({
+        status: 'rejected',
+        error: error.message || 'Sorry, something gone wrong!',
+      });
+      console.log(error.message);
     }
   }
 
@@ -96,25 +74,12 @@ export class ImageFinder extends Component {
     this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
-  showModal = () => {
-    this.setState({ modal: true });
-    this.getLargeImage();
+  showModal = (url, tags) => {
+    this.setState({ modal: true, imageLink: url, tags: tags });
   };
 
   hideModal = () => {
     this.setState({ modal: false, imageLink: null });
-  };
-
-  getImageLink = value => {
-    this.setState({ imageLink: value });
-  };
-
-  getLargeImage = () => {
-    const link = this.state.imageLink;
-    const imageLink = this.state.images.find(item => {
-      return item.id === +link;
-    });
-    return imageLink.webformatURL;
   };
 
   render() {
@@ -123,7 +88,7 @@ export class ImageFinder extends Component {
       <>
         <Searchbar onSubmit={this.addNewSearchValue} />
         {images.length !== 0 && (
-          <ImageGallery data={images} getLink={this.getImageLink} />
+          <ImageGallery data={images} showModal={this.showModal} />
         )}
         {status === 'resolved' &&
           images.length > 0 &&
@@ -131,11 +96,17 @@ export class ImageFinder extends Component {
             <Button setPage={this.setCurrentPage} />
           )}
         {status === 'resolved' && images.length === 0 && (
-          <p>No items matching your search criteria were found</p>
+          <p>No images matching your search criteria were found</p>
         )}
         {status === 'pending' && <Loader />}
-        {modal && <Modal link={this.getLargeImage()} hide={this.hideModal} />}
-        {status === 'rejected' && <p>Sorry, something gone wrong!</p>}
+        {modal && (
+          <Modal
+            link={this.state.imageLink}
+            tags={this.state.tags}
+            hide={this.hideModal}
+          />
+        )}
+        {status === 'rejected' && <p>{this.state.error}</p>}
       </>
     );
   }

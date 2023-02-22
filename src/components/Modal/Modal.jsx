@@ -19,7 +19,11 @@ export class Modal extends Component {
   render() {
     return (
       <div className={css.backdrop} onClick={this.handleClose}>
-        <img className={css.modal} src={this.props.link} alt="123" />
+        <img
+          className={css.modal}
+          src={this.props.link}
+          alt={this.props.tags}
+        />
       </div>
     );
   }
@@ -27,5 +31,6 @@ export class Modal extends Component {
 
 Modal.propTypes = {
   link: PropTypes.string.isRequired,
+  tags: PropTypes.string.isRequired,
   hide: PropTypes.func.isRequired,
 };

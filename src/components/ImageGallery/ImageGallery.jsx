@@ -11,7 +11,9 @@ export class ImageGallery extends Component {
           key={item.id}
           id={item.id}
           preview={item.previewURL}
-          getLink={this.props.getLink}
+          fullImage={item.webformatURL}
+          tags={item.tags}
+          showModal={this.props.showModal}
         />
       );
     });
@@ -24,7 +26,9 @@ ImageGallery.propTypes = {
     PropTypes.shape({
       id: PropTypes.number.isRequired,
       previewURL: PropTypes.string.isRequired,
+      webformatURL: PropTypes.string.isRequired,
+      tags: PropTypes.string.isRequired,
     })
   ),
-  getLink: PropTypes.func.isRequired,
+  showModal: PropTypes.func.isRequired,
 };
