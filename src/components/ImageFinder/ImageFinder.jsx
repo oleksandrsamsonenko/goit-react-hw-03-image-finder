@@ -78,6 +78,7 @@ export class ImageFinder extends Component {
       });
     } catch (error) {
       this.setState({ status: 'rejected' });
+      console.log(error);
     }
   }
 
