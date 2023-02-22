@@ -4,7 +4,6 @@ import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 import { Component } from 'react';
 import css from './ImageGallery.module.css';
 export class ImageGallery extends Component {
-  state = {};
   render() {
     const elements = this.props.data.map(item => {
       return (

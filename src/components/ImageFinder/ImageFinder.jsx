@@ -1,10 +1,12 @@
 import { Searchbar } from 'components/SearchBar/SearchBar';
 import { Component } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
 import { ImageGallery } from 'components/ImageGallery/ImageGallery';
 import { Button } from 'components/Button/Button';
 import { Loader } from 'components/Loader/Loader';
 import { Modal } from 'components/Modal/Modal';
+
+import { searchImages } from 'api/api';
 
 export class ImageFinder extends Component {
   state = {
@@ -49,11 +51,11 @@ export class ImageFinder extends Component {
   async getResponse() {
     try {
       this.setState({ status: 'pending' });
-      const response = await axios.get(
-        `https://pixabay.com/api/?key=32997992-21d577d14436d1c75bdc39ad8&q=${this.state.search.trim()}&page=${
-          this.state.page
-        }&per_page=12&orientation=horizontal`
-      );
+      //   const response = await axios.get(
+      //     `https://pixabay.com/api/?key=32997992-21d577d14436d1c75bdc39ad8&q=${this.state.search.trim()}&page=${
+      //       this.state.page
+      //     }&per_page=12&orientation=horizontal`
+      //   );
 
       //   const response = await axios.get(`https://pixabay.com/api`, {
       //     params: {
@@ -65,7 +67,8 @@ export class ImageFinder extends Component {
       //     },
       //   });
 
-      this.setState({ totalHits: response.data.totalHits });
+      const response = await searchImages(this.state.search, this.state.page);
+
       this.setState(prevState => {
         const newImages = response.data.hits.map(
           ({ id, previewURL, webformatURL }) => {
@@ -80,6 +83,7 @@ export class ImageFinder extends Component {
         return {
           images: [...prevState.images, ...newImages],
           status: 'resolved',
+          totalHits: response.data.totalHits,
         };
       });
     } catch (error) {
