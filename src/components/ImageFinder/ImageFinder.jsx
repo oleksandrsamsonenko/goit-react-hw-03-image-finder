@@ -41,6 +41,7 @@ export class ImageFinder extends Component {
       this.setState({ search: value, images: [], page: 1 });
     }
     if (value.trim() === '') {
+      this.setState({ status: 'idle' });
       alert(`Search field must contain something to show results`);
     }
   };
@@ -58,8 +59,8 @@ export class ImageFinder extends Component {
       //     params: {
       //       key: '32997992-21d577d14436d1c75bdc39ad8',
       //       q: this.state.search.trim(),
-      //       orientation: 'horizontal',
-      //       page: this.state.page,
+      //       orientation: 'horizontal',           //в такому вигляді краще, але чогось гітхаб свариться
+      //       page: this.state.page,               //на якісь міксовані https запити
       //       per_page: 12,
       //     },
       //   });
