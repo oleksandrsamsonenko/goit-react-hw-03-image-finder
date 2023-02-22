@@ -10,6 +10,7 @@ export const ImageGalleryItem = ({
 }) => {
   return (
     <li
+      className={css.item}
       id={id}
       style={{ cursor: 'pointer' }}
       onClick={() => showModal(fullImage, tags)}
